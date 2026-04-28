@@ -17,6 +17,7 @@ type Config struct {
 	Auth     AuthConfig
 	Postgres PostgresConfig
 	Minio    MinioConfig
+	AI		 AIConfig
 }
 
 type AppConfig struct {
@@ -45,6 +46,10 @@ type MinioConfig struct {
 	SecretKey string
 	UseSSL    bool
 	Bucket    string
+}
+
+type AIConfig struct {
+	IP string
 }
 
 // LoadConfig loads and returns application config
@@ -80,6 +85,9 @@ func LoadConfig() *Config {
 	cfg.Minio.Bucket = getEnv("MINIO_BUCKET", "uploads")
 
 	cfg.Minio.UseSSL = getEnv("MINIO_USE_SSL", "0") == "1"
+
+	//ai
+	cfg.AI.IP = getEnv("AI_IP", "localhost:8080")
 
 	return cfg
 }

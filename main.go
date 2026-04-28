@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/deltrexgg/ai-code-editor-server/internals/ai"
 	"github.com/deltrexgg/ai-code-editor-server/internals/config"
 	"github.com/deltrexgg/ai-code-editor-server/internals/infra"
 	"github.com/joho/godotenv"
@@ -38,8 +40,41 @@ func main() {
 	// Create a standard handler
 	mux := http.NewServeMux()
 	
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
+	mux.HandleFunc("/genfiles", func(w http.ResponseWriter, r *http.Request) {
+
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    defer r.Body.Close()
+
+    type RequestBody struct {
+        Content string `json:"content"`
+    }
+
+    var reqBody RequestBody
+
+    err := json.NewDecoder(r.Body).Decode(&reqBody)
+    if err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    if reqBody.Content == "" {
+        http.Error(w, "content is required", http.StatusBadRequest)
+        return
+    }
+
+    result, err := ai.FileStructure(reqBody.Content, cred.AI.IP)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    _, _ = w.Write([]byte(result))
 	})
 
 	// Wrap the entire mux (router) with the middleware
