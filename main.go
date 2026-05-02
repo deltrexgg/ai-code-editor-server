@@ -9,6 +9,8 @@ import (
 	"github.com/deltrexgg/ai-code-editor-server/internals/ai"
 	"github.com/deltrexgg/ai-code-editor-server/internals/config"
 	"github.com/deltrexgg/ai-code-editor-server/internals/infra"
+	"github.com/deltrexgg/ai-code-editor-server/internals/migration"
+	"github.com/deltrexgg/ai-code-editor-server/internals/module/auth"
 	"github.com/joho/godotenv"
 )
 
@@ -46,7 +48,14 @@ func main() {
 	infra.InitMinio(cred.Minio)
 	infra.InitDB(cred.Postgres.DSN())
 
+	// migration
+	migration.AutoMigrate()
+
 	mux := http.NewServeMux()
+
+	//auth
+	mux.HandleFunc("/login", auth.Login)
+	mux.HandleFunc("/register", auth.Register)
 
 	mux.HandleFunc("/genfiles", func(w http.ResponseWriter, r *http.Request) {
 
