@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -57,42 +56,7 @@ func main() {
 	mux.HandleFunc("/login", auth.Login)
 	mux.HandleFunc("/register", auth.Register)
 
-	mux.HandleFunc("/genfiles", func(w http.ResponseWriter, r *http.Request) {
-
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
-		defer r.Body.Close()
-
-		type RequestBody struct {
-			Content string `json:"content"`
-		}
-
-		var reqBody RequestBody
-
-		err := json.NewDecoder(r.Body).Decode(&reqBody)
-		if err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-
-		if reqBody.Content == "" {
-			http.Error(w, "content is required", http.StatusBadRequest)
-			return
-		}
-
-		result, err := ai.FileStructure(reqBody.Content, cred.AI.IP)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(result))
-	})
+	mux.HandleFunc("/genfiles", ai.GenerateFiles)
 
 	handler := CORSMiddleware(LoggingMiddleware(mux))
 
