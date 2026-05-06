@@ -61,6 +61,7 @@ func main() {
 
 	//project
 	mux.HandleFunc("/project/create", projects.CreateProject)
+	mux.HandleFunc("/project/file/add", projects.AddFiles)
 
 	handler := CORSMiddleware(LoggingMiddleware(mux))
 

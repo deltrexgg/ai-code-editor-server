@@ -55,14 +55,14 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := helper.CreateFolder(reqBody.UserID+"/"+reqBody.ProjectName); err != nil {
+	if err := helper.CreateFolder(reqBody.UserID+"/"+project.ID.String()); err != nil {
 		http.Error(w, "Error in User folder Path : "+
 		err.Error(), http.StatusBadRequest)
 		return
 	}
 	
 	for _, file := range reqBody.Files {
-		err := helper.CreateFile(reqBody.UserID+"/"+reqBody.ProjectName+"/"+file)
+		err := helper.CreateFile(reqBody.UserID+"/"+project.ID.String()+"/"+file)
 		if err != nil {
 			http.Error(w, "Error in creating files : "+ err.Error(), http.StatusBadRequest)
 			return
@@ -70,4 +70,35 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.Success(w, "Project Created Successfully", nil)
+}
+
+func AddFiles(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	defer r.Body.Close()
+
+	type RequestBody struct {
+		UserID		string		`json:"user_id" binding:"required"`
+		ProjectID	string		`json:"project_id" binding:"required"`
+		Filename	string		`json:"file_name" binding:"required"`
+	}
+
+	var reqBody RequestBody
+
+	if err := json.NewDecoder(r.Body).Decode(&reqBody);err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	file_location := reqBody.UserID + "/" + reqBody.ProjectID + "/" + reqBody.Filename
+
+	if err := helper.CreateFile(file_location); err != nil {
+		http.Error(w, "Error in file creation", http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "File created successfully", nil)
 }
