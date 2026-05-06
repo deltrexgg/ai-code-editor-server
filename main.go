@@ -10,6 +10,7 @@ import (
 	"github.com/deltrexgg/ai-code-editor-server/internals/infra"
 	"github.com/deltrexgg/ai-code-editor-server/internals/migration"
 	"github.com/deltrexgg/ai-code-editor-server/internals/module/auth"
+	"github.com/deltrexgg/ai-code-editor-server/internals/module/projects"
 	"github.com/joho/godotenv"
 )
 
@@ -57,6 +58,9 @@ func main() {
 	mux.HandleFunc("/register", auth.Register)
 
 	mux.HandleFunc("/genfiles", ai.GenerateFiles)
+
+	//project
+	mux.HandleFunc("/project/create", projects.CreateProject)
 
 	handler := CORSMiddleware(LoggingMiddleware(mux))
 
