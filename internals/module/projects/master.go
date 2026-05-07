@@ -131,3 +131,61 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 
 	responses.Success(w, "File deleted successfully", nil)
 }
+
+func ViewFiles(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userID := r.URL.Query().Get("user_id")
+	projectID := r.URL.Query().Get("project_id")
+
+	if userID == "" || projectID == "" {
+		http.Error(w, "Missing required query params", http.StatusBadRequest)
+		return
+	}
+
+	fileLocation := userID + "/" + projectID
+
+	files, err := helper.GetfilesNfolders(fileLocation)
+	if err != nil {
+		http.Error(w, "Error in getting file", http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "Files fetched successfully", files)
+}
+
+func ProjectsList(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userID := r.URL.Query().Get("user_id")
+
+	if userID == "" {
+		http.Error(w, "Missing required query params", http.StatusBadRequest)
+		return
+	}
+
+	folders, err := helper.GetfilesNfolders(userID)
+	if err != nil {
+		http.Error(w, "Error in getting project IDs", http.StatusBadRequest)
+		return
+	}
+
+	var projects []models.Projects
+
+	err = infra.DataBaseClient.
+		Where("id IN ?", folders).
+		Find(&projects).Error
+
+	if err != nil {
+		http.Error(w, "Error in getting project details", http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "Projects Fetched successfully", projects)
+}

@@ -33,3 +33,18 @@ func DeleteFile(file_name string) error {
 
 	return nil
 }
+
+func GetfilesNfolders(folder_loc string) ([]string, error) {
+	var file_names []string
+
+	files, err := os.ReadDir("project-files/"+folder_loc)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, file := range files {
+		file_names = append(file_names, file.Name())
+	}
+
+	return file_names, nil
+}
