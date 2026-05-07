@@ -48,3 +48,24 @@ func GetfilesNfolders(folder_loc string) ([]string, error) {
 
 	return file_names, nil
 }
+
+func ReadFile(path string) (string, error) {
+	
+	loaction := "project-files/"+path
+	data, err := os.ReadFile(loaction)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
+func OverwriteFile(content string, path string) error {
+	
+	err := os.WriteFile("project-files/"+path, []byte(content),0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

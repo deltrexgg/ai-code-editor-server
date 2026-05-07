@@ -189,3 +189,59 @@ func ProjectsList(w http.ResponseWriter, r *http.Request) {
 
 	responses.Success(w, "Projects Fetched successfully", projects)
 }
+
+func ViewFileData(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userID := r.URL.Query().Get("user_id")
+	projectID := r.URL.Query().Get("project_id")
+	file := r.URL.Query().Get("file")
+
+	if userID == "" || projectID == "" || file == "" { 
+		http.Error(w, "Missing required query params", http.StatusBadRequest)
+		return
+	}
+
+	path := userID + "/" + projectID + "/" + file
+	content, err := helper.ReadFile(path)
+	if err != nil {
+		http.Error(w, "Error in reading file : " + err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "", content)
+}
+
+func InputFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	defer r.Body.Close()
+
+	type RequestBody struct {
+		UserID		string		`json:"user_id" binding:"required"`
+		ProjectID	string		`json:"project_id" binding:"required"`
+		Filename	string		`json:"file_name" binding:"required"`
+		Content		string		`json:"content" binding:"required"`
+	}
+
+	var reqBody RequestBody
+
+	if err := json.NewDecoder(r.Body).Decode(&reqBody);err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	path := reqBody.UserID + "/" + reqBody.ProjectID + "/" + reqBody.Filename
+	if err := helper.OverwriteFile(reqBody.Content, path); err != nil {
+		http.Error(w, "Error in saving file content : ", http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "File Saved", nil)
+}
