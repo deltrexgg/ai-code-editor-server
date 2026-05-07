@@ -1,14 +1,18 @@
 package projects
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"path/filepath"
 
+	"github.com/deltrexgg/ai-code-editor-server/internals/config"
 	"github.com/deltrexgg/ai-code-editor-server/internals/helper"
 	"github.com/deltrexgg/ai-code-editor-server/internals/infra"
 	"github.com/deltrexgg/ai-code-editor-server/internals/models"
 	"github.com/deltrexgg/ai-code-editor-server/internals/responses"
 	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
 )
 
 
@@ -244,4 +248,69 @@ func InputFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.Success(w, "File Saved", nil)
+}
+
+func PublishProject(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	defer r.Body.Close()
+
+	type RequestBody struct {
+		UserID		string		`json:"user_id" binding:"required"`
+		ProjectID	string		`json:"project_id" binding:"required"`
+	}
+
+	var reqBody RequestBody
+
+	if err := json.NewDecoder(r.Body).Decode(&reqBody);err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	client := infra.GetMinio()
+
+	files, err := helper.GetfilesNfolders(reqBody.UserID+"/"+reqBody.ProjectID)
+	if err != nil {
+		http.Error(w, "Error in getting files"+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	localFolderPath := "project-files/"+reqBody.UserID+"/"+reqBody.ProjectID
+
+	minioFolder := reqBody.ProjectID
+
+	cred := config.LoadConfig()
+
+	bucketName := cred.Minio.Bucket
+
+	for _, file := range files {
+
+		localFilePath := filepath.Join(localFolderPath, file)
+
+		// object path inside minio
+		objectName := filepath.Join(minioFolder, file)
+
+		_, err := client.FPutObject(
+			context.Background(),
+			bucketName,
+			objectName,
+			localFilePath,
+			minio.PutObjectOptions{},
+		)
+		if err != nil {
+			http.Error(w, "Error in uploading files"+err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	if err := infra.DataBaseClient.Model(&models.Projects{}).Where("id = ?", reqBody.ProjectID).Update("is_published", true).Error; err != nil {
+		http.Error(w, "Error in uploading files"+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "Published Successfully", nil)
+
 }

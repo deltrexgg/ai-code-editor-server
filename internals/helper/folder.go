@@ -2,9 +2,11 @@ package helper
 
 import "os"
 
+const ProjectFolder = "project-files/"
+
 
 func CreateFolder(folder_name string) error {
-	location := "project-files/"+folder_name
+	location := ProjectFolder+folder_name
 	err := os.MkdirAll(location, os.ModePerm)
 	if err != nil {
 		return err
@@ -14,7 +16,7 @@ func CreateFolder(folder_name string) error {
 }
 
 func CreateFile(file_name string) error {
-	location := "project-files/"+file_name
+	location := ProjectFolder+file_name
 	
 	file, err := os.Create(location)
 	if err != nil {
@@ -26,7 +28,7 @@ func CreateFile(file_name string) error {
 }
 
 func DeleteFile(file_name string) error {
-	err := os.Remove("project-files/"+file_name)
+	err := os.Remove(ProjectFolder+file_name)
 	if err != nil {
 		return err
 	}
@@ -37,7 +39,7 @@ func DeleteFile(file_name string) error {
 func GetfilesNfolders(folder_loc string) ([]string, error) {
 	var file_names []string
 
-	files, err := os.ReadDir("project-files/"+folder_loc)
+	files, err := os.ReadDir(ProjectFolder+folder_loc)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +52,8 @@ func GetfilesNfolders(folder_loc string) ([]string, error) {
 }
 
 func ReadFile(path string) (string, error) {
-	
-	loaction := "project-files/"+path
+
+	loaction := ProjectFolder+path
 	data, err := os.ReadFile(loaction)
 	if err != nil {
 		return "", err
@@ -62,7 +64,7 @@ func ReadFile(path string) (string, error) {
 
 func OverwriteFile(content string, path string) error {
 	
-	err := os.WriteFile("project-files/"+path, []byte(content),0644)
+	err := os.WriteFile(ProjectFolder+path, []byte(content),0644)
 	if err != nil {
 		return err
 	}
