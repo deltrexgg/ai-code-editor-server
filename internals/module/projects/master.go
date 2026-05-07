@@ -72,7 +72,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 	responses.Success(w, "Project Created Successfully", nil)
 }
 
-func AddFiles(w http.ResponseWriter, r *http.Request) {
+func AddFile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -101,4 +101,33 @@ func AddFiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.Success(w, "File created successfully", nil)
+}
+
+func DeleteFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	type RequestBody struct {
+		UserID		string		`json:"user_id" binding:"required"`
+		ProjectID	string		`json:"project_id" binding:"required"`
+		Filename	string		`json:"file_name" binding:"required"`
+	}
+
+	var reqBody RequestBody
+
+	if err := json.NewDecoder(r.Body).Decode(&reqBody);err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	file_location := reqBody.UserID + "/" + reqBody.ProjectID + "/" + reqBody.Filename
+
+	if err := helper.DeleteFile(file_location); err != nil {
+		http.Error(w, "Error in file deletion", http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "File deleted successfully", nil)
 }

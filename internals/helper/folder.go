@@ -24,3 +24,12 @@ func CreateFile(file_name string) error {
 
 	return nil
 }
+
+func DeleteFile(file_name string) error {
+	err := os.Remove("project-files/"+file_name)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
