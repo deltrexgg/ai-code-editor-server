@@ -161,6 +161,29 @@ func ViewFiles(w http.ResponseWriter, r *http.Request) {
 	responses.Success(w, "Files fetched successfully", files)
 }
 
+func GetProject(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	projectID := r.URL.Query().Get("project_id")
+
+	if projectID == "" {
+		http.Error(w, "Missing required query params", http.StatusBadRequest)
+		return
+	}
+
+	var project models.Projects
+	if err := infra.DataBaseClient.Where("id = ?", projectID).First(&project).Error; err != nil {
+		http.Error(w, "Error in getting project details : " + err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	responses.Success(w, "Fetched project details successfully",project)
+	
+}
+
 func ProjectsList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
