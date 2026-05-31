@@ -309,6 +309,24 @@ func PublishProject(w http.ResponseWriter, r *http.Request) {
 
 	bucketName := cred.Minio.Bucket
 
+	ctx := context.Background()
+
+	objectsCh := client.ListObjects(ctx, bucketName, minio.ListObjectsOptions{
+    	Prefix:    reqBody.ProjectID + "/",
+    	Recursive: true,
+	})
+
+	for err := range client.RemoveObjects(
+    	ctx,
+    	bucketName,
+    	objectsCh,
+    	minio.RemoveObjectsOptions{},
+	) {
+    	if err.Err != nil {
+        	return
+    	}
+	}
+
 	for _, file := range files {
 
 		localFilePath := filepath.Join(localFolderPath, file)

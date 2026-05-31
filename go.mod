@@ -17,9 +17,11 @@ require (
 
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/creack/pty v1.1.24
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.11 // indirect

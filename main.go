@@ -11,6 +11,7 @@ import (
 	"github.com/deltrexgg/ai-code-editor-server/internals/migration"
 	"github.com/deltrexgg/ai-code-editor-server/internals/module/auth"
 	"github.com/deltrexgg/ai-code-editor-server/internals/module/projects"
+	"github.com/deltrexgg/ai-code-editor-server/internals/terminal"
 	"github.com/joho/godotenv"
 )
 
@@ -69,6 +70,8 @@ func main() {
 	mux.HandleFunc("/project/file/write", projects.InputFile)
 	mux.HandleFunc("/project/info", projects.GetProject)
 	mux.HandleFunc("/project/publish", projects.PublishProject)
+
+	mux.HandleFunc("/terminal", terminal.TerminalHandler)
 
 	handler := CORSMiddleware(LoggingMiddleware(mux))
 
