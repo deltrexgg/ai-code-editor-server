@@ -76,5 +76,5 @@ func main() {
 	handler := CORSMiddleware(LoggingMiddleware(mux))
 
 	fmt.Println("Server starting on :8080")
-	http.ListenAndServe(":8080", handler)
+	http.ListenAndServe(":8000", handler)
 }
