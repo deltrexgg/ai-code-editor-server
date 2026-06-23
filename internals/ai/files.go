@@ -300,7 +300,7 @@ User:
 
 			"temperature":0.3,
 
-			"maxOutputTokens":200,
+			"maxOutputTokens":400,
 
 		},
 
