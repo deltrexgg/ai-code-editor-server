@@ -444,10 +444,39 @@ User:
 
 
 
-	return geminiResponse.
-		Candidates[0].
-		Content.
-		Parts[0].
-		Text,nil
+	text := geminiResponse.
+	Candidates[0].
+	Content.
+	Parts[0].
+	Text
+
+
+response := map[string]interface{}{
+
+	"choices":[]map[string]interface{}{
+
+		{
+
+			"message":map[string]string{
+
+				"content":text,
+
+			},
+
+		},
+
+	},
+
+}
+
+
+final,err:=json.Marshal(response)
+
+if err!=nil{
+	return "",err
+}
+
+
+return string(final),nil
 
 }
