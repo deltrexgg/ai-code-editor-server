@@ -88,8 +88,8 @@ func main() {
 
 	handler := CORSMiddleware(LoggingMiddleware(mux))
 
-	fmt.Println("Server starting on :8080")
-	err := http.ListenAndServe(":8080", handler)
+	fmt.Println("Server starting on :8000")
+	err := http.ListenAndServe(":8000", handler)
 
 	if err != nil {
 		fmt.Println("SERVER ERROR:", err)
