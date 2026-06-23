@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/deltrexgg/ai-code-editor-server/internals/ai"
@@ -43,6 +44,18 @@ func CORSMiddleware(next http.Handler) http.Handler {
 
 func main() {
 	_ = godotenv.Load()
+
+	for _, arg := range os.Args {
+
+		if arg == "--gemini" {
+
+			ai.UseGemini = true
+
+			fmt.Println("Using Gemini AI")
+
+		}
+
+	}
 
 	cred := config.LoadConfig()
 
